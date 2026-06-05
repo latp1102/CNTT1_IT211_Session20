@@ -56,25 +56,15 @@ public class UserService {
     public ResponseEntity<?> refreshToken(RefreshTokenRequest request) {
         try {
             String token = request.getRefreshToken();
-
-            // Validate the refresh token
             if(!jwtProvider.validateJwtToken(token)) {
                 return new ResponseEntity<>("Invalid refresh token", HttpStatus.UNAUTHORIZED);
             }
-
-            // Extract username from the refresh token
             String username = jwtProvider.getUsernameFromToken(token);
-
-            // Find user by username
             User user = userRepository.findByUsername(username).orElse(null);
             if(user == null) {
                 return new ResponseEntity<>("User not found", HttpStatus.UNAUTHORIZED);
             }
-
-            // Generate new access token
             String newAccessToken = jwtProvider.generateAccessToken(user);
-
-            // Return new tokens
             JwtResponse jwtResponse = JwtResponse
                     .builder()
                     .username(user.getUsername())
